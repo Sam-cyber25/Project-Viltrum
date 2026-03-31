@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project Viltrum</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F9F5F2;
+  --surface: #FFFFFF;
+  --primary: #7B1818;
+  --primary-dark: #5C1010;
+  --primary-light: #9B2020;
+  --text: #1A0808;
+  --text-muted: #9A7070;
+  --border: #E8D5D5;
+  --border-light: #F3EAEA;
+  --success: #2D6A4F;
+  --sidebar: 220px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex}
+/* SIDEBAR */
+.sidebar{width:var(--sidebar);min-height:100vh;background:var(--primary);position:fixed;left:0;top:0;display:flex;flex-direction:column;z-index:100}
+.logo{padding:32px 26px 22px;border-bottom:1px solid rgba(255,255,255,.1)}
+.logo-tag{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.3em;color:rgba(255,255,255,.3);margin-bottom:8px}
+.logo-name{font-family:'Playfair Display',serif;font-size:20px;color:#F9F5F2;font-weight:700;letter-spacing:.03em}
+.logo-sub{font-size:8px;letter-spacing:.18em;color:rgba(255,255,255,.2);margin-top:3px}
+.nav{flex:1;padding:18px 0}
+.nav-btn{display:flex;align-items:center;gap:11px;width:100%;padding:12px 26px;background:none;border:none;border-left:2px solid transparent;color:rgba(255,255,255,.32);cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.14em;text-align:left;transition:all .18s}
+.nav-btn:hover{color:rgba(255,255,255,.6);background:rgba(255,255,255,.05)}
+.nav-btn.active{color:#F9F5F2;background:rgba(255,255,255,.09);border-left-color:#F9F5F2}
+.nav-icon{font-size:13px;width:16px;flex-shrink:0}
+.sidebar-foot{padding:18px 26px;border-top:1px solid rgba(255,255,255,.1);font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,255,255,.18);letter-spacing:.1em;line-height:1.9}
+/* MAIN */
+.main{margin-left:var(--sidebar);flex:1;padding:40px 48px;max-width:calc(100% - var(--sidebar))}
+.page{display:none;max-width:760px}
+.page.active{display:block}
+/* TYPOGRAPHY */
+.page-title{font-family:'Playfair Display',serif;font-size:26px;color:var(--text);margin-bottom:3px}
+.page-sub{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.25em;color:var(--text-muted);margin-bottom:28px}
+.section-label{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.28em;color:var(--text-muted);margin-bottom:12px}
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:22px 26px;margin-bottom:14px}
+/* GRID */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:18px 20px}
+.stat-label{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.2em;color:var(--text-muted);margin-bottom:8px}
+.stat-val{font-family:'Playfair Display',serif;font-size:30px;font-weight:700;color:var(--primary);line-height:1}
+.stat-sub{font-size:10px;color:var(--text-muted);margin-top:4px}
+/* BUTTONS */
+.btn{padding:8px 18px;border-radius:4px;border:none;cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;font-weight:500;transition:all .15s}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:var(--primary-light)}
+.btn-ghost{background:transparent;color:var(--primary);border:1px solid var(--border)}
+.btn-ghost:hover{border-color:var(--primary)}
+/* TABS */
+.tabs{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap}
+.tab-btn{padding:8px 16px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--text-muted);cursor:pointer;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;transition:all .15s;line-height:1.5}
+.tab-btn:hover{border-color:var(--primary);color:var(--primary)}
+.tab-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+/* PROGRESS */
+.prog-wrap{height:3px;background:var(--border);border-radius:2px;overflow:hidden}
+.prog-bar{height:100%;background:var(--primary);border-radius:2px;transition:width .3s}
+/* TIMELINE */
+.timeline{position:relative}
+.timeline::before{content:'';position:absolute;left:52px;top:0;bottom:0;width:1px;background:var(--border)}
+.tl-item{display:flex;gap:12px;margin-bottom:3px;cursor:pointer}
+.tl-time{width:40px;flex-shrink:0;padding-top:12px;text-align:right;font-family:'DM Mono',monospace;font-size:9px;color:var(--text-muted);line-height:1.4}
+.tl-dot-col{width:22px;flex-shrink:0;display:flex;flex-direction:column;align-items:center}
+.tl-dot{width:8px;height:8px;border-radius:50%;margin-top:15px;z-index:1;flex-shrink:0}
+.tl-block{flex:1;border-radius:6px;padding:10px 15px;margin-bottom:3px;border-left:2px solid;background:var(--surface);border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border);transition:all .15s}
+.tl-block:hover{box-shadow:0 2px 10px rgba(123,24,24,.06)}
+.tl-head{display:flex;justify-content:space-between;align-items:center}
+.tl-label{font-size:11px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;font-family:'DM Mono',monospace}
+.tl-dur{font-family:'DM Mono',monospace;font-size:9px;color:var(--text-muted)}
+.tl-note{margin-top:8px;padding-top:8px;border-top:1px solid var(--border-light);font-size:11px;color:var(--text-muted);line-height:1.7;display:none}
+.tl-block.expanded .tl-note{display:block}
+/* HABITS */
+.habit-item{display:flex;align-items:center;gap:14px;padding:13px 16px;background:var(--surface);border:1px solid var(--border);border-radius:6px;margin-bottom:6px;cursor:pointer;transition:all .15s;user-select:none;-webkit-user-select:none}
+.habit-item:hover{border-color:var(--primary)}
+.habit-item.done{background:#FDF8F8;border-color:var(--border-light)}
+.h-check{width:18px;height:18px;border-radius:4px;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;background:#fff}
+.habit-item.done .h-check{background:var(--primary);border-color:var(--primary)}
+.h-tick{color:#fff;font-size:10px;font-weight:700;display:none}
+.habit-item.done .h-tick{display:block}
+.h-icon{font-size:16px}
+.h-label{font-size:13px;color:var(--text);flex:1;transition:all .15s}
+.habit-item.done .h-label{color:var(--text-muted);text-decoration:line-through}
+/* CALENDAR */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:12px}
+.cal-hdr{text-align:center;font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.1em;color:var(--text-muted);padding:4px}
+.cal-day{aspect-ratio:1;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-family:'DM Mono',monospace;color:var(--text-muted);background:transparent;border:1px solid var(--border-light);transition:all .15s}
+.cal-day.done{background:var(--primary);color:#fff;border-color:var(--primary)}
+.cal-day.today{border-color:var(--primary);color:var(--primary);font-weight:600}
+.cal-day.today.done{background:var(--primary);color:#fff}
+.cal-day.empty{border-color:transparent}
+/* STREAK */
+.streak-big{font-family:'Playfair Display',serif;font-size:52px;font-weight:700;color:var(--primary);line-height:1}
+/* GOALS */
+.goal-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:12px;overflow:hidden}
+.goal-hdr{padding:16px 20px;display:flex;gap:16px;align-items:center;cursor:pointer}
+.goal-icon{font-size:22px;flex-shrink:0}
+.goal-meta{flex:1}
+.goal-cat{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.25em;color:var(--text-muted);margin-bottom:3px}
+.goal-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:8px}
+.goal-body{padding:0 20px 18px;border-top:1px solid var(--border-light);display:none}
+.goal-body.open{display:block}
+.goal-desc{font-size:11px;color:var(--text-muted);line-height:1.8;margin:12px 0 14px}
+.step-item{display:flex;gap:10px;align-items:flex-start;padding:7px 9px;border-radius:4px;margin-bottom:3px;cursor:pointer;transition:all .15s}
+.step-item:hover{background:#FDF8F8}
+.step-check{width:14px;height:14px;border-radius:3px;border:1.5px solid var(--border);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all .15s;background:#fff}
+.step-done .step-check{background:var(--primary);border-color:var(--primary)}
+.step-tick{color:#fff;font-size:8px;font-weight:700;display:none}
+.step-done .step-tick{display:block}
+.step-text{font-size:11px;color:var(--text);line-height:1.55;flex:1}
+.step-done .step-text{color:var(--text-muted);text-decoration:line-through}
+/* JOURNAL */
+.j-prompt{font-size:12px;color:var(--text-muted);font-style:italic;line-height:1.7;padding:11px 15px;background:#FDF8F8;border-left:2px solid var(--border);border-radius:0 4px 4px 0;margin-bottom:14px}
+.j-textarea{width:100%;min-height:150px;border:1px solid var(--border);border-radius:6px;padding:13px 15px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);background:var(--surface);resize:vertical;outline:none;line-height:1.7;transition:border-color .15s}
+.j-textarea:focus{border-color:var(--primary)}
+.j-entry{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px 18px;margin-bottom:10px}
+.j-entry-date{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.18em;color:var(--primary);margin-bottom:8px}
+.j-entry-text{font-size:12px;color:var(--text);line-height:1.85;white-space:pre-wrap}
+/* HERO */
+.hero{background:var(--primary);border-radius:8px;padding:30px 34px;margin-bottom:14px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-50px;right:-50px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)}
+.hero-date{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.28em;color:rgba(255,255,255,.32);margin-bottom:9px}
+.hero-greeting{font-family:'Playfair Display',serif;font-size:28px;color:#F9F5F2;margin-bottom:8px;font-weight:700}
+.hero-quote{font-size:12px;color:rgba(255,255,255,.5);font-style:italic;line-height:1.65}
+/* MISC */
+.flex-between{display:flex;justify-content:space-between;align-items:center}
+.mono{font-family:'DM Mono',monospace}
+.divider{height:1px;background:var(--border);margin:16px 0}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-tag">PRIVATE · 2026</div>
+    <div class="logo-name">Project Viltrum</div>
+    <div class="logo-sub">OPERATION UNRECOGNIZABLE</div>
+  </div>
+  <nav class="nav">
+    <button class="nav-btn active" onclick="nav('overview')"><span class="nav-icon">◈</span>Overview</button>
+    <button class="nav-btn" onclick="nav('schedule')"><span class="nav-icon">◷</span>Schedule</button>
+    <button class="nav-btn" onclick="nav('habits')"><span class="nav-icon">◻</span>Habits & Streak</button>
+    <button class="nav-btn" onclick="nav('goals')"><span class="nav-icon">◆</span>Goals</button>
+    <button class="nav-btn" onclick="nav('journal')"><span class="nav-icon">◇</span>Journal</button>
+  </nav>
+  <div class="sidebar-foot" id="sfoot"></div>
+</aside>
+
+<main class="main">
+
+  <!-- OVERVIEW -->
+  <div class="page active" id="page-overview">
+    <div class="hero">
+      <div class="hero-date" id="hdate"></div>
+      <div class="hero-greeting" id="hgreet"></div>
+      <div class="hero-quote" id="hquote"></div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">HABITS TODAY</div>
+        <div class="stat-val" id="ov-hval">0/6</div>
+        <div class="stat-sub" id="ov-hpct">0% complete</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">STREAK</div>
+        <div class="stat-val" id="ov-streak">0</div>
+        <div class="stat-sub">days in a row</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">GOALS ACTIVE</div>
+        <div class="stat-val">6</div>
+        <div class="stat-sub">all systems go</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-label">TODAY'S ANCHORS</div>
+      <div id="ov-anchors"></div>
+      <button class="btn btn-ghost" onclick="nav('schedule')" style="margin-top:14px">VIEW FULL SCHEDULE →</button>
+    </div>
+    <div class="card">
+      <div class="flex-between" style="margin-bottom:14px">
+        <div class="section-label" style="margin:0">QUICK HABITS</div>
+        <span style="font-size:10px;color:var(--text-muted);font-family:'DM Mono',monospace" id="ov-hcount"></span>
+      </div>
+      <div id="ov-hlist"></div>
+      <button class="btn btn-ghost" onclick="nav('habits')" style="margin-top:14px">FULL CHECKLIST →</button>
+    </div>
+  </div>
+
+  <!-- SCHEDULE -->
+  <div class="page" id="page-schedule">
+    <h1 class="page-title">War Schedule</h1>
+    <p class="page-sub">5 AM START · MILITARY GRADE · NON-NEGOTIABLE</p>
+    <div class="tabs" id="sched-tabs"></div>
+    <div class="timeline" id="sched-tl"></div>
+  </div>
+
+  <!-- HABITS -->
+  <div class="page" id="page-habits">
+    <div class="flex-between" style="margin-bottom:4px">
+      <h1 class="page-title">Habits & Streak</h1>
+      <div style="text-align:right">
+        <div class="streak-big" id="streak-big">0</div>
+        <div style="font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.18em;color:var(--text-muted)">DAY STREAK</div>
+      </div>
+    </div>
+    <p class="page-sub">RESETS DAILY · BUILD THE IDENTITY</p>
+    <div class="prog-wrap" style="margin-bottom:20px"><div class="prog-bar" id="h-prog" style="width:0%"></div></div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="flex-between" style="margin-bottom:14px">
+        <div class="section-label" style="margin:0">TODAY — <span id="h-date"></span></div>
+        <span style="font-size:10px;color:var(--text-muted);font-family:'DM Mono',monospace" id="h-count"></span>
+      </div>
+      <div id="h-list"></div>
+    </div>
+    <div class="card">
+      <div class="flex-between" style="margin-bottom:4px">
+        <div class="section-label" style="margin:0">STREAK CALENDAR</div>
+        <div style="display:flex;gap:6px">
+          <button onclick="calNav(-1)" class="btn btn-ghost" style="padding:4px 10px">‹</button>
+          <button onclick="calNav(1)" class="btn btn-ghost" style="padding:4px 10px">›</button>
+        </div>
+      </div>
+      <div id="cal-month" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text-muted);margin-bottom:10px;letter-spacing:.15em"></div>
+      <div class="cal-grid" id="cal-grid"></div>
+      <div style="display:flex;gap:16px;margin-top:12px">
+        <div style="display:flex;align-items:center;gap:6px">
+          <div style="width:10px;height:10px;border-radius:2px;background:var(--primary)"></div>
+          <span style="font-size:9px;color:var(--text-muted);font-family:'DM Mono',monospace">ALL 6 DONE</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <div style="width:10px;height:10px;border-radius:2px;border:1.5px solid var(--primary)"></div>
+          <span style="font-size:9px;color:var(--text-muted);font-family:'DM Mono',monospace">TODAY</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GOALS -->
+  <div class="page" id="page-goals">
+    <h1 class="page-title">6 Goals · 2026</h1>
+    <p class="page-sub">THE MISSION · TAP TO EXPAND · TICK EACH STEP</p>
+    <div id="g-list"></div>
+  </div>
+
+  <!-- JOURNAL -->
+  <div class="page" id="page-journal">
+    <h1 class="page-title">Journal</h1>
+    <p class="page-sub">EN FRANÇAIS · CHAQUE SOIR · SANS EXCEPTION</p>
+    <div class="card">
+      <div class="section-label">AUJOURD'HUI — <span id="j-date"></span></div>
+      <div class="j-prompt" id="j-prompt"></div>
+      <textarea class="j-textarea" id="j-area" placeholder="Écris librement. Pas de jugement ici. En français..."></textarea>
+      <div style="margin-top:12px;display:flex;gap:10px;align-items:center">
+        <button class="btn btn-primary" onclick="saveJ()">SAUVEGARDER</button>
+        <span id="j-msg" style="display:none;font-size:10px;color:var(--success);font-family:'DM Mono',monospace">✓ Saved</span>
+      </div>
+    </div>
+    <div class="section-label" style="margin-bottom:10px">PAST ENTRIES</div>
+    <div id="j-entries"></div>
+  </div>
+
+</main>
+
+<script>
+// ── DATA ────────────────────────────────────────────
+
+const HABITS = [
+  {id:'gym',   icon:'🏋️', label:'Gym session completed'},
+  {id:'food',  icon:'🥗', label:'Healthy food eaten today'},
+  {id:'god',   icon:'🙏', label:'Spent time with God'},
+  {id:'water', icon:'💧', label:'2 litres of water'},
+  {id:'read',  icon:'📖', label:'Reading — 30 min'},
+  {id:'mma',   icon:'🥊', label:'MMA training — 1 to 1.5 hours'},
+];
+
+const CCAT = {
+  anchor:'#7B1818', fitness:'#B22222', spirit:'#6B1A8B',
+  school:'#1A3A8B', coaching:'#1A6B4A', study:'#2D6A4F',
+  transit:'#8B7070', self:'#8B5A1A', mind:'#4A1A8B',
+};
+
+const SCHED = {
+  'Mon – Wed':{sub:'School + 2 coaching classes', blocks:[
+    {t:'5:00',l:'WAKE UP',d:'15m',c:'anchor',n:'No snooze. Feet on the floor immediately. Water. Wash face. Gear up. The mission begins now.'},
+    {t:'5:15',l:'GYM',d:'1h 15m',c:'fitness',n:'Peak testosterone window. Progressive overload every session. You are building a completely different body — show up like you know it.'},
+    {t:'6:30',l:'Post-Gym Recovery',d:'20m',c:'fitness',n:'Cold rinse. Full body stretch. Protein intake immediately. Lock in the recovery.'},
+    {t:'6:50',l:'Time With God',d:'20m',c:'spirit',n:'Sit still. Tell Him everything — what you want, what you fear, what you\'re grateful for. Jai Shree Ram. He is listening.'},
+    {t:'7:10',l:'READING',d:'30m',c:'mind',n:'Biographies and mindset. Napoleon\'s strategy, Khabib\'s obsession, Conor\'s belief, Goggins\' discipline. Study how great men think before they win.'},
+    {t:'7:40',l:'Get Ready + Breakfast',d:'20m',c:'self',n:'Full meal — high protein. No skipping. Fuel is not optional. Be out the door on time.'},
+    {t:'8:00',l:'SCHOOL',d:'~6h',c:'school',n:'[Exact end time TBC — school message pending. Be present, front bench energy, take actual notes.]'},
+    {t:'2:00',l:'Travel Home + Decompress',d:'30m',c:'transit',n:'Light snack. Max 20 min rest — not a full nap. You still have a heavy evening.'},
+    {t:'2:30',l:'Study Block 1',d:'TBD',c:'study',n:'[To be updated when Next Toppers schedule arrives. Maths always goes first — hardest subject, freshest brain.]'},
+    {t:'—',l:'MMA Training',d:'1–1.5h',c:'fitness',n:'[Time TBD — once sir schedule is confirmed this gets placed. Non-negotiable daily block.]'},
+    {t:'—',l:'Sir — Tutor',d:'1h',c:'coaching',n:'[Schedule incoming — placeholder for now. Will slot between study blocks once confirmed.]'},
+    {t:'5:00',l:'NEXT TOPPERS — CLASS 1',d:'~1h 15m',c:'coaching',n:'First batch. Notes, active questions, zero zoning out. 10–15 min delay buffer accounted for.'},
+    {t:'6:15',l:'Study Block 2',d:'~1h 45m',c:'study',n:'Consolidate class 1 notes immediately. Homework. Then weakest subject revision.'},
+    {t:'8:00',l:'NEXT TOPPERS — CLASS 2',d:'~1h 15m',c:'coaching',n:'Second batch. Even if tired — stay locked in. 10–15 min delay buffer accounted for.'},
+    {t:'9:15',l:'Mindset Research',d:'20m',c:'mind',n:'Deep dive into how great men lived. Napoleon\'s campaigns. Khabib\'s early sacrifices. Conor\'s belief system. Learn — don\'t scroll.'},
+    {t:'9:35',l:'French Journal',d:'20m',c:'spirit',n:'Write in French. What happened today. How you felt. What you\'re grateful for. Language compounds when you live it.'},
+    {t:'9:55',l:'Wind Down',d:'20m',c:'anchor',n:'No screens. Dark room. Breathe. Visualize who you are becoming.'},
+    {t:'10:15',l:'LIGHTS OUT',d:'—',c:'anchor',n:'6h 45m of sleep. Non-negotiable. Growth hormone peaks in deep sleep — this is still training.'},
+  ]},
+  'Thu – Sat':{sub:'School + 1 coaching class', blocks:[
+    {t:'5:00',l:'WAKE UP',d:'15m',c:'anchor',n:'No snooze. Feet on the floor. Water. Wash face. Gear up.'},
+    {t:'5:15',l:'GYM',d:'1h 15m',c:'fitness',n:'Peak testosterone window. Progressive overload. Same intensity every day.'},
+    {t:'6:30',l:'Post-Gym Recovery',d:'20m',c:'fitness',n:'Cold rinse. Stretch. Protein. Lock in the recovery.'},
+    {t:'6:50',l:'Time With God',d:'20m',c:'spirit',n:'Sit still. Tell Him everything. Jai Shree Ram. Let faith anchor the day.'},
+    {t:'7:10',l:'READING',d:'30m',c:'mind',n:'One great man every session. Napoleon, Khabib, Conor, Goggins, Alexander. Study how they thought.'},
+    {t:'7:40',l:'Get Ready + Breakfast',d:'20m',c:'self',n:'Full meal. Fuel for school. Be out on time.'},
+    {t:'8:00',l:'SCHOOL',d:'~6h',c:'school',n:'[Exact timings TBC. Present, focused, front bench energy.]'},
+    {t:'2:00',l:'Travel Home + Decompress',d:'30m',c:'transit',n:'Light snack. 20 min rest max.'},
+    {t:'2:30',l:'Study Block 1',d:'TBD',c:'study',n:'[TBD after Next Toppers schedule. Maths always first.]'},
+    {t:'—',l:'MMA Training',d:'1–1.5h',c:'fitness',n:'[Time TBD — once sir is confirmed.]'},
+    {t:'—',l:'Sir — Tutor',d:'1h',c:'coaching',n:'[Schedule incoming — placeholder.]'},
+    {t:'5:00',l:'NEXT TOPPERS — CLASS 1',d:'~1h 15m',c:'coaching',n:'Only class today. Go all in. Ask every question. No holdbacks.'},
+    {t:'6:15',l:'Study Block 2',d:'~1h 30m',c:'study',n:'Consolidate notes. Deep work. Past papers or homework.'},
+    {t:'7:45',l:'Mindset Research / Free Time',d:'1h',c:'mind',n:'Research a great man. Or breathe — you earned it today.'},
+    {t:'8:45',l:'French Journal',d:'20m',c:'spirit',n:'Write in French. Reflect. Build the language.'},
+    {t:'9:05',l:'Wind Down',d:'20m',c:'anchor',n:'No screens. Visualize. Prepare for tomorrow.'},
+    {t:'9:30',l:'LIGHTS OUT',d:'—',c:'anchor',n:'7h 30m of sleep tonight. Extra recovery on lighter days.'},
+  ]},
+  'Sunday':{sub:'No school · No coaching · Full recharge', blocks:[
+    {t:'5:00',l:'WAKE UP',d:'15m',c:'anchor',n:'Sunday or not — discipline does not sleep. Water. Face. Gear up.'},
+    {t:'5:15',l:'GYM',d:'1h 15m',c:'fitness',n:'Same intensity. The man you\'re becoming doesn\'t take Sundays off.'},
+    {t:'6:30',l:'Post-Gym Recovery',d:'20m',c:'fitness',n:'Cold rinse. Stretch. Protein. You know the drill.'},
+    {t:'6:50',l:'Extended Time With God',d:'40m',c:'spirit',n:'Longer today. Review the week with Him. Thank Him. Ask Him. Tell Him everything. Jai Shree Ram.'},
+    {t:'7:30',l:'READING',d:'45m',c:'mind',n:'Longer session. Go deep on one person today — their full story, not just highlights.'},
+    {t:'8:15',l:'Breakfast',d:'20m',c:'self',n:'Full meal. No rush. Sit and eat properly.'},
+    {t:'8:35',l:'Deep Study — MATHS',d:'2h',c:'study',n:'Hardest subject first. Full focus. No interruptions. This is AIR 1 work.'},
+    {t:'10:35',l:'Break — Go Outside',d:'25m',c:'self',n:'Walk. Sunlight. No phone. Just breathe and reset.'},
+    {t:'11:00',l:'Deep Study — SS or French',d:'1h 30m',c:'study',n:'Social Science maps and concepts, or French grammar + vocab. Past papers when ready.'},
+    {t:'12:30',l:'Lunch + Rest',d:'1h',c:'self',n:'Full meal. 20–25 min horizontal rest. Not a nap — just recharge.'},
+    {t:'1:30',l:'MMA Training',d:'1h 30m',c:'fitness',n:'Longer Sunday session. Shadowboxing, drills, conditioning. Study Khabib and Conor technique videos.'},
+    {t:'3:00',l:'Mindset Research Block',d:'1h',c:'mind',n:'Pick one: Napoleon, Khabib, Conor, Goggins, Alexander. Read how they thought and what separated them.'},
+    {t:'4:00',l:'Week Revision',d:'1h 30m',c:'study',n:'Review the entire past week. Weakest topics. Consolidate all notes. Prepare for Monday fully.'},
+    {t:'5:30',l:'Evening Walk + Reflection',d:'45m',c:'spirit',n:'Phone in pocket. Think. Visualize the version of yourself you are actively building. This time is sacred.'},
+    {t:'6:15',l:'Study — Weakest Subject',d:'1h',c:'study',n:'Whatever gave you the most trouble this week — go straight at it.'},
+    {t:'7:15',l:'Free / Recharge',d:'1h',c:'self',n:'Guitar, Minecraft, stargazing, whatever restores you. Fully enjoy it — no guilt.'},
+    {t:'8:15',l:'Week Planning + French Journal',d:'45m',c:'spirit',n:'Set 3 concrete targets for the coming week. Then write in French — what this week was, what next week will be.'},
+    {t:'9:00',l:'LIGHTS OUT',d:'—',c:'anchor',n:'8 hours of sleep. Best recovery of the week. You\'ve completely earned it.'},
+  ]},
+};
+
+const GOALS = [
+  {id:1,icon:'📖',cat:'ACADEMICS',title:'AIR 1 — CBSE Class 10 Boards',color:'#1A3A8B',
+   desc:'Top rank in the country. The academic goal that changes everything. Weak subjects: Maths, Social Science, French. Every day of study is a vote toward this.',
+   prog:8, steps:[
+    'Complete NCERT for all 5 subjects — cover to cover, no skipping ever',
+    'Solve minimum 20 Maths problems daily — every single day without exception',
+    'One full past paper every Sunday — timed, under exam conditions',
+    'French: 20 new vocabulary words daily + journal in French nightly',
+    'Social Science: draw one map from memory every day',
+    'Coaching notes reviewed and consolidated same day — no backlog ever',
+    'Score 95+ in every internal test and class test',
+    'Create formula sheets for Maths and Science — revise every week',
+    'Never leave a coaching session with an unanswered doubt',
+    'Weekly mock test review: identify exact mistakes, categorize, fix',
+  ]},
+  {id:2,icon:'💰',cat:'HUSTLE',title:'Independent Income — Web Dev & Freelance',color:'#8B6A1A',
+   desc:'Real money before the year ends. Skills you already have — now execute. Web dev for local businesses is the entry point.',
+   prog:22, steps:[
+    'Build a clean portfolio with 3 complete projects (Menon institute + 2 more)',
+    'List 10 local Kanpur businesses that need a website — research OLX, Maps, Instagram',
+    'Use Father\'s network for warm introductions — pitch 3 businesses this month',
+    'Close first paid client at ₹3,000 minimum',
+    'Deliver the project on time and get a written testimonial',
+    'Offer ₹500/month retainer for maintenance after every project',
+    'Hit ₹5,000 earned independently — first financial milestone',
+    'Research PC flipping — study OLX listings, learn which upgrades have best ROI',
+    'Execute first PC flip — source, upgrade if needed, sell for profit',
+    'Hit ₹10,000 earned independently — proof of concept complete',
+  ]},
+  {id:3,icon:'⚔️',cat:'FITNESS',title:'Body Recomposition — Visible Abs',color:'#7B1818',
+   desc:'Lean athletic physique. Visible abs. 12–18 month mission that starts at 5:15 AM every morning. Every rep is a vote for who you\'re becoming.',
+   prog:5, steps:[
+    '5:15 AM gym, 6 days a week — track every missed session honestly',
+    'MMA training 1–1.5 hours daily — cardio and functional strength combined',
+    'Eat in a slight caloric deficit with high protein — minimum 100g daily',
+    'Progressive overload — increase weight or reps every 2 weeks minimum',
+    'Drink 2 litres of water every single day without exception',
+    'Zero junk food for 30 consecutive days — first real test of discipline',
+    'Take progress photos every 4 weeks — force yourself to see the change',
+    'Sleep 7+ hours every night — growth hormone peaks in deep sleep',
+    'Track body measurements monthly (chest, waist, arms, bodyweight)',
+    'Achieve clearly visible abs — the moment you know the mission worked',
+  ]},
+  {id:4,icon:'🙏',cat:'SPIRIT',title:'Spiritual Development — Daily Practice',color:'#6B1A8B',
+   desc:'Faith is the anchor when everything else is chaos. Daily conversation with God — not ritual, real relationship. Jai Shree Ram.',
+   prog:30, steps:[
+    'Daily morning time with God — minimum 20 minutes, tell Him everything',
+    'Complete 30-day unbroken streak — first major spiritual milestone',
+    'Learn 1 new prayer, shloka, or devotional text every week',
+    'Extended session every Sunday — review the week, set the intention',
+    'Evening gratitude reflection — even 5 minutes before the journal',
+    'Let faith be the first response to chaos — not the last resort',
+    'Complete 60-day unbroken streak — faith is becoming identity',
+    'Read one full spiritual biography or scripture this year',
+    'Develop a prayer that is specifically yours — your words, your meaning',
+    'Complete 90-day unbroken streak — spiritual practice is now automatic',
+  ]},
+  {id:5,icon:'🥊',cat:'MARTIAL ARTS',title:'MMA & Self-Defense — Home Training',color:'#1A6B4A',
+   desc:'Real striking and grappling foundation. Study Khabib\'s wrestling and Conor\'s precision striking. A dangerous man is also a calm man.',
+   prog:15, steps:[
+    'Master 5 fundamental strikes: jab, cross, hook, elbow, knee',
+    'Daily shadowboxing — minimum 15 minutes as the non-negotiable warmup',
+    'Study Khabib\'s grappling philosophy, takedown setups, and pressure game on YouTube',
+    'Study Conor\'s Karate-style precision striking, range control, and footwork',
+    'Learn basic takedown defense: hip base, sprawl, underhook control',
+    'Core and conditioning: planks, L-sits, rotational strength 3x per week',
+    '30 consecutive days of 1+ hour training — lock in the habit permanently',
+    'Learn basic clinch control and dirty boxing setups',
+    'Build a personalized 20-minute daily drilling routine that you own',
+    'Reach spar-ready fundamentals — clean technique, solid conditioning',
+  ]},
+  {id:6,icon:'🌌',cat:'CHARACTER',title:'Become Unrecognizable — Project Viltrum',color:'#1A1A1A',
+   desc:'The sum of every other goal. Every rep, every page, every prayer, every session — they all lead here. A version of yourself the old you would not recognize.',
+   prog:10, steps:[
+    'Keep all 5 goals active and tracked for 6 consecutive months',
+    'Read biographies and deeply study Napoleon, Khabib, Conor, Goggins, Alexander',
+    'Journal in French every single night — language and mind training compound together',
+    'Track physical transformation with monthly progress photos — face the mirror honestly',
+    'Build independent income — money is confidence made tangible and real',
+    'Earn AIR 1 or very close — prove your mind is as sharp as your body',
+    'Develop a presence that walks into the room before you physically arrive',
+    'At 6 months: look in the mirror and genuinely not recognize the old you',
+    'At 12 months: be someone others look at and quietly wonder what happened to them',
+    'The final act of love for yourself — and the highest response to pain.',
+  ]},
+];
+
+const QUOTES = [
+  "Pain is temporary. The version you become is permanent.",
+  "Every rep, every page, every prayer — it compounds.",
+  "Discipline is the highest form of self-love.",
+  "Build in silence. Let results make the noise.",
+  "Jai Shree Ram. Then get to work.",
+  "The man you're becoming doesn't negotiate with his old habits.",
+  "Study Napoleon's patience. Khabib's obsession. Conor's belief.",
+  "She'll see it. Not because you want her to. Because you couldn't stop.",
+  "Iron sharpens iron. You are both.",
+  "6 AM exists. The question is whether you'll be there.",
+];
+
+const FR_PROMPTS = [
+  "Qu'est-ce que j'ai fait aujourd'hui dont mon futur moi sera fier ?",
+  "Quel a été le moment le plus difficile aujourd'hui ? Comment l'ai-je traversé ?",
+  "Une chose dont je suis fier. Une chose à corriger demain.",
+  "À quel point suis-je proche de devenir méconnaissable ?",
+  "Qu'est-ce que la meilleure version de moi aurait fait différemment aujourd'hui ?",
+  "De quoi suis-je reconnaissant aujourd'hui ?",
+  "Qu'ai-je appris sur moi-même aujourd'hui ?",
+];
+
+// ── STORAGE ─────────────────────────────────────────
+
+function todayKey(){return new Date().toISOString().split('T')[0]}
+function getH(k){try{return JSON.parse(localStorage.getItem('pv_h_'+k)||'{}')}catch{return{}}}
+function setH(k,v){localStorage.setItem('pv_h_'+k,JSON.stringify(v))}
+function getJ(){try{return JSON.parse(localStorage.getItem('pv_j')||'{}')}catch{return{}}}
+function setJ(k,v){const d=getJ();d[k]=v;localStorage.setItem('pv_j',JSON.stringify(d))}
+function getGD(){try{return JSON.parse(localStorage.getItem('pv_g')||'{}')}catch{return{}}}
+function saveGD(v){localStorage.setItem('pv_g',JSON.stringify(v))}
+
+function calcStreak(){
+  let s=0;const t=new Date();
+  for(let i=0;i<365;i++){
+    const d=new Date(t);d.setDate(d.getDate()-i);
+    const k=d.toISOString().split('T')[0];
+    const h=getH(k);const done=HABITS.filter(x=>h[x.id]).length;
+    if(done===HABITS.length){s++;}
+    else if(i>0){break;}
+  }
+  return s;
+}
+
+function allDone(k){const h=getH(k);return HABITS.every(x=>h[x.id])}
+
+// ── NAVIGATION ───────────────────────────────────────
+
+function nav(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.querySelector('[onclick="nav(\''+page+'\')"]').classList.add('active');
+  if(page==='overview')renderOverview();
+  if(page==='schedule')renderSchedule();
+  if(page==='habits')renderHabits();
+  if(page==='goals')renderGoals();
+  if(page==='journal')renderJournal();
+}
+
+// ── OVERVIEW ─────────────────────────────────────────
+
+function renderOverview(){
+  const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const MO=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const n=new Date();
+  document.getElementById('hdate').textContent=DAYS[n.getDay()].toUpperCase()+' · '+n.getDate()+' '+MO[n.getMonth()].toUpperCase()+' '+n.getFullYear();
+  const hr=n.getHours();
+  document.getElementById('hgreet').textContent=(hr<12?'Good morning':'hr<17?Good afternoon':'Good evening')+', Sam.';
+  // fix the ternary
+  let greet='Good evening, Sam.';
+  if(hr<12)greet='Good morning, Sam.';
+  else if(hr<17)greet='Good afternoon, Sam.';
+  document.getElementById('hgreet').textContent=greet;
+  document.getElementById('hquote').textContent='"'+QUOTES[n.getDate()%QUOTES.length]+'"';
+
+  const h=getH(todayKey());
+  const done=HABITS.filter(x=>h[x.id]).length;
+  const pct=Math.round(done/HABITS.length*100);
+  document.getElementById('ov-hval').textContent=done+'/'+HABITS.length;
+  document.getElementById('ov-hpct').textContent=pct+'% complete';
+  document.getElementById('ov-streak').textContent=calcStreak();
+
+  const anchors=[
+    {t:'5:00 AM',l:'Wake Up'},
+    {t:'5:15 AM',l:'GYM'},
+    {t:'6:50 AM',l:'Time With God'},
+    {t:'7:10 AM',l:'Reading'},
+    {t:'8:00 AM',l:'School [TBC]'},
+    {t:'5:00 PM',l:'Coaching Class 1'},
+  ];
+  document.getElementById('ov-anchors').innerHTML=anchors.map(a=>
+    '<div style="display:flex;align-items:center;gap:14px;padding:7px 0;border-bottom:1px solid var(--border-light)">'
+    +'<span style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--text-muted);width:70px;flex-shrink:0">'+a.t+'</span>'
+    +'<span style="font-size:12px">'+a.l+'</span></div>'
+  ).join('');
+
+  document.getElementById('ov-hcount').textContent=done+'/'+HABITS.length;
+  document.getElementById('ov-hlist').innerHTML=HABITS.map(x=>
+    '<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border-light)">'
+    +'<span style="font-size:14px">'+x.icon+'</span>'
+    +'<span style="font-size:12px;color:'+(h[x.id]?'var(--text-muted)':'var(--text)')+(h[x.id]?';text-decoration:line-through':'')+'">'+x.label+'</span>'
+    +(h[x.id]?'<span style="margin-left:auto;font-size:9px;color:var(--success);font-family:\'DM Mono\',monospace">DONE</span>':'')
+    +'</div>'
+  ).join('');
+}
+
+// ── SCHEDULE ─────────────────────────────────────────
+
+let activeSched='Mon – Wed';
+const expBlocks=new Set();
+
+function renderSchedule(){
+  const tabs=Object.keys(SCHED);
+  document.getElementById('sched-tabs').innerHTML=tabs.map(t=>
+    '<button class="tab-btn'+(t===activeSched?' active':'')+'" onclick="switchSched(\''+t+'\')">'+t.toUpperCase()+'<br><span style="font-size:8px;opacity:.65;font-weight:400">'+SCHED[t].sub+'</span></button>'
+  ).join('');
+  renderTL();
+}
+
+function switchSched(t){activeSched=t;expBlocks.clear();renderSchedule()}
+
+function renderTL(){
+  document.getElementById('sched-tl').innerHTML=SCHED[activeSched].blocks.map((b,i)=>{
+    const col=CCAT[b.c]||'#7B1818';
+    const exp=expBlocks.has(i);
+    return '<div class="tl-item" onclick="toggleTL('+i+')">'
+      +'<div class="tl-time">'+b.t.replace(':','<br>')+'</div>'
+      +'<div class="tl-dot-col"><div class="tl-dot" style="background:'+col+';box-shadow:0 0 6px '+col+'44"></div></div>'
+      +'<div class="tl-block'+(exp?' expanded':'')+'" style="border-left-color:'+col+'">'
+      +'<div class="tl-head"><span class="tl-label" style="color:'+col+'">'+b.l+'</span><span class="tl-dur">'+b.d+'</span></div>'
+      +'<div class="tl-note">'+b.n+'</div>'
+      +'</div></div>';
+  }).join('');
+}
+
+function toggleTL(i){expBlocks.has(i)?expBlocks.delete(i):expBlocks.add(i);renderTL()}
+
+// ── HABITS ────────────────────────────────────────────
+
+let calY=new Date().getFullYear(), calM=new Date().getMonth();
+
+function renderHabits(){
+  const k=todayKey();
+  const h=getH(k);
+  const done=HABITS.filter(x=>h[x.id]).length;
+  const pct=Math.round(done/HABITS.length*100);
+  const streak=calcStreak();
+  const n=new Date();
+
+  document.getElementById('streak-big').textContent=streak;
+  document.getElementById('h-date').textContent=n.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'}).toUpperCase();
+  document.getElementById('h-count').textContent=done+'/'+HABITS.length+' COMPLETE';
+  document.getElementById('h-prog').style.width=pct+'%';
+
+  document.getElementById('h-list').innerHTML=HABITS.map(x=>{
+    const isDone=!!h[x.id];
+    return '<div class="habit-item'+(isDone?' done':'')+'" onclick="toggleH(\''+x.id+'\')">'
+      +'<div class="h-check"><span class="h-tick">✓</span></div>'
+      +'<span class="h-icon">'+x.icon+'</span>'
+      +'<span class="h-label">'+x.label+'</span>'
+      +'</div>';
+  }).join('');
+
+  renderCal();
+}
+
+function toggleH(id){
+  const k=todayKey();
+  const h=getH(k);
+  h[id]=!h[id];
+  setH(k,h);
+  renderHabits();
+}
+
+function renderCal(){
+  const MOS=['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE','JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER'];
+  document.getElementById('cal-month').textContent=MOS[calM]+' '+calY;
+  const first=new Date(calY,calM,1).getDay();
+  const days=new Date(calY,calM+1,0).getDate();
+  const today=todayKey();
+  const DNAMES=['SUN','MON','TUE','WED','THU','FRI','SAT'];
+  let html=DNAMES.map(d=>'<div class="cal-hdr">'+d+'</div>').join('');
+  for(let i=0;i<first;i++) html+='<div class="cal-day empty"></div>';
+  for(let d=1;d<=days;d++){
+    const ds=calY+'-'+String(calM+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const isT=ds===today, done=allDone(ds);
+    let cls='cal-day';
+    if(done)cls+=' done';
+    if(isT)cls+=' today';
+    html+='<div class="'+cls+'">'+d+'</div>';
+  }
+  document.getElementById('cal-grid').innerHTML=html;
+}
+
+function calNav(dir){
+  calM+=dir;
+  if(calM>11){calM=0;calY++;}
+  if(calM<0){calM=11;calY--;}
+  renderCal();
+}
+
+// ── GOALS ─────────────────────────────────────────────
+
+let expGoal=null;
+
+function renderGoals(){
+  const gd=getGD();
+  document.getElementById('g-list').innerHTML=GOALS.map((g,gi)=>{
+    const gsd=gd[g.id]||{};
+    const doneCt=g.steps.filter((_,si)=>gsd[si]).length;
+    const prog=Math.max(g.prog,Math.round(doneCt/g.steps.length*100));
+    const isOpen=expGoal===gi;
+    return '<div class="goal-card" style="border-left:3px solid '+g.color+'">'
+      +'<div class="goal-hdr" onclick="toggleGoal('+gi+')">'
+      +'<span class="goal-icon">'+g.icon+'</span>'
+      +'<div class="goal-meta">'
+      +'<div class="goal-cat" style="color:'+g.color+'">'+g.cat+'</div>'
+      +'<div class="goal-title">'+g.title+'</div>'
+      +'<div class="prog-wrap" style="margin:0"><div class="prog-bar" style="width:'+prog+'%;background:'+g.color+'"></div></div>'
+      +'</div>'
+      +'<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">'
+      +'<span style="font-family:\'Playfair Display\',serif;font-size:20px;font-weight:700;color:'+g.color+'">'+prog+'%</span>'
+      +'<span style="font-size:10px;color:var(--text-muted)">'+(isOpen?'▲':'▼')+'</span>'
+      +'</div></div>'
+      +'<div class="goal-body'+(isOpen?' open':'')+'">'
+      +'<p class="goal-desc">'+g.desc+'</p>'
+      +'<div class="section-label">STEPS TO COMPLETE</div>'
+      +g.steps.map((s,si)=>{
+        const done=!!(gsd[si]);
+        return '<div class="step-item'+(done?' step-done':'')+'" onclick="toggleStep('+g.id+','+si+');event.stopPropagation()">'
+          +'<div class="step-check"><span class="step-tick">✓</span></div>'
+          +'<span class="step-text">'+s+'</span></div>';
+      }).join('')
+      +'<div style="margin-top:10px;font-family:\'DM Mono\',monospace;font-size:9px;color:var(--text-muted)">'+doneCt+'/'+g.steps.length+' STEPS COMPLETED</div>'
+      +'</div></div>';
+  }).join('');
+}
+
+function toggleGoal(gi){expGoal=expGoal===gi?null:gi;renderGoals()}
+
+function toggleStep(gid,si){
+  const gd=getGD();
+  if(!gd[gid])gd[gid]={};
+  gd[gid][si]=!gd[gid][si];
+  saveGD(gd);
+  renderGoals();
+}
+
+// ── JOURNAL ───────────────────────────────────────────
+
+let jLoaded=false;
+
+function renderJournal(){
+  const n=new Date();
+  const k=todayKey();
+  document.getElementById('j-date').textContent=n.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).toUpperCase();
+  document.getElementById('j-prompt').textContent=FR_PROMPTS[n.getDate()%FR_PROMPTS.length];
+  
+  const entries=getJ();
+  const ta=document.getElementById('j-area');
+  if(!jLoaded){ta.value=entries[k]||'';jLoaded=true;}
+
+  const past=Object.keys(entries).filter(x=>x!==k).sort().reverse();
+  document.getElementById('j-entries').innerHTML=past.length===0
+    ?'<div style="text-align:center;padding:40px;color:var(--text-muted);font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:.18em">NO PAST ENTRIES YET<br><br>Écris ce soir.</div>'
+    :past.map(pk=>{
+      const d=new Date(pk+'T12:00:00');
+      return '<div class="j-entry">'
+        +'<div class="j-entry-date">'+d.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).toUpperCase()+'</div>'
+        +'<div class="j-entry-text">'+entries[pk]+'</div>'
+        +'</div>';
+    }).join('');
+}
+
+function saveJ(){
+  const text=document.getElementById('j-area').value.trim();
+  if(!text)return;
+  setJ(todayKey(),text);
+  const msg=document.getElementById('j-msg');
+  msg.style.display='inline';
+  setTimeout(()=>msg.style.display='none',2000);
+  jLoaded=false;
+  renderJournal();
+}
+
+// ── INIT ──────────────────────────────────────────────
+
+(function init(){
+  const n=new Date();
+  document.getElementById('sfoot').innerHTML=
+    n.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}).toUpperCase()
+    +'<br>CLASS 10 · KANPUR<br>PROJECT VILTRUM';
+  activeSched=['Mon – Wed','Mon – Wed','Mon – Wed','Mon – Wed','Thu – Sat','Thu – Sat','Sunday'][n.getDay()];
+  renderOverview();
+  renderSchedule();
+})();
+</script>
+</body>
+</html>
